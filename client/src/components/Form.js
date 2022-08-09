@@ -63,7 +63,6 @@ const Form = () => {
   };
 
   useEffect(() => {
-    console.log(form.isValidForm)
     if (form.isValidForm) {
       formService.getAll()
         .then(res => res.json())

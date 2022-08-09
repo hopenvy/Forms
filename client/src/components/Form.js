@@ -1,6 +1,12 @@
-import { useFormInputValidation } from "react-form-input-validation";
-const Form = ({ formhandler }) => {
+import { useState, useEffect } from "react";
+import { useNavigate } from 'react-router-dom';
+import uniqid from 'uniqid';
 
+import { useFormInputValidation } from "react-form-input-validation";
+
+import * as formService from '../services/formService';
+
+const Form = () => {
   const [fields, errors, form] = useFormInputValidation({
     name: "",
     email_address: "",
@@ -32,8 +38,7 @@ const Form = ({ formhandler }) => {
     search: "required",
     message: "required",
   });
-
-  form.handleSubmit = (e) => {
+  const onSubmit = (e) => {
     e.preventDefault();
 
     const formsData = Object.fromEntries(new FormData(e.target));
@@ -41,6 +46,33 @@ const Form = ({ formhandler }) => {
     console.log(formsData);
     formhandler(formsData)
   }
+  const [forms, setForms] = useState({});
+
+  const navigate = useNavigate();
+
+  const formhandler = (formData) => {
+    setForms(state => [
+      ...state,
+      {
+        ...formData,
+        _id: uniqid(),
+      },
+    ]);
+    navigate('/');
+    console.log(forms)
+  };
+
+  useEffect(() => {
+    console.log(form.isValidForm)
+    if (form.isValidForm) {
+      formService.getAll()
+        .then(res => res.json())
+        .then(res => {
+          setForms(res);
+        })
+    }
+
+  }, [form.isValidForm]);
 
 
 
@@ -333,7 +365,7 @@ const Form = ({ formhandler }) => {
 
 
       <p>
-        <button type="submit">Submit</button>
+        <button type="submit" onSubmit={onSubmit}>Submit</button>
       </p>
     </form>
   </div >
